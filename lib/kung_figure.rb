@@ -1,7 +1,11 @@
 module KungFigure
-  ROOT_CONFIG_CLASS = :Config
+
   def self.included(base)
     base.extend(ClassMethods)
+  end
+
+  def config
+    self.class.config
   end
 
   module ClassMethods
@@ -10,7 +14,6 @@ module KungFigure
     end
 
     def root_config_class
-      @root_config_class || :Config
       self.const_get(@root_config_class || :Config)
     end
 
@@ -44,17 +47,32 @@ module KungFigure
     def camelize(str)
       str.split('_').map{|l| l.capitalize}.join('')
     end
+    
+    def get_from_enclosing_module(klazz_name)
+      config_klazz_path=self.class.name.to_s.split('::')[0..-2]
+      config_klazz_path<< klazz_name
+      config_klazz_path.inject(Kernel){|parent,nxt|
+         break unless parent.const_defined?(nxt) 
+         parent.const_get(nxt.to_sym)
+      }
+    end
 
     def method_missing(key,&block)
       @props ||= {}
-      child_cfg_clazz = self.class.const_get(camelize(key.to_s).to_sym)
+      klazz_name = camelize(key.to_s).to_sym
+      child_cfg_clazz = self.class.const_get(klazz_name) if self.class.const_defined?(klazz_name)
+      child_cfg_clazz ||= get_from_enclosing_module(klazz_name)
+
       raise "No such configuration #{key}" unless child_cfg_clazz
 
       unless @props.key?(key)
-        @props[key] = child_cfg_clazz.new
+        @props[key] = if child_cfg_clazz.ancestors.include?(KungFigure::Base)
+                        child_cfg_clazz.new
+                      elsif child_cfg_clazz.respond_to?(:config)
+                        child_cfg_clazz.config
+                      end
       end
       @props[key].instance_eval(&block) if block_given?
-
       return @props[key]
     end
   end
