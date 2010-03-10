@@ -51,8 +51,8 @@ module KungFigure
     def get_from_enclosing_module(klazz_name)
       config_klazz_path=self.class.name.to_s.split('::')[0..-2]
       config_klazz_path<< klazz_name
-      config_klazz_path.inject(Kernel){|parent,nxt|
-         break unless parent.const_defined?(nxt) 
+      config_klazz_path.inject(Object){|parent,nxt|
+         break unless parent.const_defined?(nxt.to_sym) 
          parent.const_get(nxt.to_sym)
       }
     end

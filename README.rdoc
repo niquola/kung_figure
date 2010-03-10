@@ -4,12 +4,13 @@
 
 == DESCRIPTION
 
-RUBY configuration DSL
-
+Simple RUBY configuration DSL
 
 == INSTALL:
 
-in config/environment.rb 
+  sudo gem install kung_figure
+
+or for rails in config/environment.rb 
 
   config.gem 'kung_figure'
 
@@ -21,16 +22,66 @@ then
 
 Example:
    
-    def action 
-      #fetch result
-      options = {:status=>:ok,:serialize_opts=>some options will be passed to to_json or to_xml}
-      simple_rest result,options
-    end
+  module MyModule
+    include KungFigure
+    class Config < KungFigure::Base
+      define_prop :prop1,'default1'
+      define_prop :prop2, 2
 
+      class NestedConfig < KungFigure::Base
+        define_prop :prop3,'prop3'
+
+        class NestedNestedConfig < KungFigure::Base
+          define_prop :prop4,'prop4'
+        end
+      end
+    end
+  end
+
+This will add method configure,config,load_config into MyModule:
+  
+  MyModule.configure do
+    prop1 'new value'
+    nested_config do
+       prop3 'new value'
+    end
+  end
+
+and accessors for configs:
+
+  MyModule.config.prop1
+  MyModule.config.nested_config.prop1
+
+You can also include KungFigure into nested in module classes and declare Config class (subclassing KungFigure::Base)
+to get similar result:
+
+
+  module MyModule
+    include KungFigure
+    class Config < KungFigure::Base
+      define_prop :prop1,'default1'
+    end
+    #somewhere in another file
+    class WorkHorse
+      include KungFigure
+      class Config < KungFigure::Base
+        define_prop :my_config,'default'
+      end
+
+      def meth
+         config.my_config
+      end
+    end
+  end
+
+Then your can access configuration with:
+
+  MyModule::WorkHorse.config or MyModule.config.work_horse
+  
+Or inside instances of WorkHorse as config method.
+   
 
 == CHANGE LOG
-
-* 0.0.2 add json request magic parameter support
 
 == MORE
 
