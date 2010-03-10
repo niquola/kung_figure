@@ -1,6 +1,6 @@
-= Simple Rest
+= Kung-Figure 
 
- * http://github.com/niquola/kung_figure
+http://github.com/niquola/kung_figure
 
 == DESCRIPTION
 
@@ -38,7 +38,7 @@ Example:
     end
   end
 
-This will add method configure,config,load_config into MyModule:
+This will mixin methods configure, config, load_config into MyModule:
   
   MyModule.configure do
     prop1 'new value'
@@ -69,6 +69,7 @@ to get similar result:
       end
 
       def meth
+         #here we can use config inside instance
          config.my_config
       end
     end
@@ -87,7 +88,13 @@ Or inside instances of WorkHorse as config method.
 
 ==  TODO
 
-* Give the posibility clear one branch of configs
+* add another configuration style
+  Mod.confugure do |m|
+     m.param 'value'
+     m.nested_config |nc|
+       nc.param1 'value2'
+     end
+  end
 
 == MORE
 
