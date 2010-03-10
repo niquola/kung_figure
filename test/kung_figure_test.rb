@@ -16,6 +16,13 @@ module MyModule
   end
 end
 
+module Another
+  include KungFigure
+  class Config < KungFigure::Base
+    define_prop :prop,'default'
+  end
+end
+
 
 module MyModule
   class WorkHorse
@@ -46,6 +53,7 @@ class TestKungFigure < Test::Unit::TestCase
   end
 
   def test_nested_config_declaration
+    MyModule.clear_config!
     assert_equal('default',MyModule.config.work_horse.my_config)
     assert_equal('default',MyModule::WorkHorse.config.my_config)
     MyModule.configure do
@@ -56,5 +64,15 @@ class TestKungFigure < Test::Unit::TestCase
     assert_equal('new value',MyModule.config.work_horse.my_config)
     assert_equal('new value',MyModule::WorkHorse.config.my_config)
     assert_equal(MyModule::WorkHorse.config,MyModule::WorkHorse.new.config)
+  end
+
+  def test_clear_configuration
+    MyModule.config.work_horse.my_config 'some config'
+    MyModule.config.prop1 'some config'
+    Another.config.prop 'some config'
+    MyModule.clear_config!
+    assert_equal('default',MyModule.config.work_horse.my_config)
+    assert_equal('default1',MyModule.config.prop1)
+    assert_equal('some config',Another.config.prop,'This branch not cleared')
   end
 end

@@ -1,6 +1,30 @@
 module KungFigure
+  class << self
+    def clear_all_configs
+      KungFigure::Register.each do |klz|
+        klz.clear_config
+      end
+    end
+  end
+  class Register
+    class<< self
+      def items
+        @items ||=[]
+      end
+      def add(klazz)
+        items<< klazz
+      end
+
+      def each
+        items.each do |klz|
+          yield klz
+        end
+      end
+    end
+  end
 
   def self.included(base)
+    KungFigure::Register.add(base)
     base.extend(ClassMethods)
   end
 
@@ -19,6 +43,20 @@ module KungFigure
 
     def config
       @config ||= root_config_class.new
+    end
+
+    def clear_config
+      @config = root_config_class.new
+    end
+
+    def clear_config!
+      KungFigure::Register.each do |klz|
+        #clear only  branch for this module
+        reg = /^#{self.name}/
+          if klz.name.to_s =~ reg 
+            klz.clear_config
+          end
+      end
     end
 
     def configure(&block)
@@ -47,13 +85,13 @@ module KungFigure
     def camelize(str)
       str.split('_').map{|l| l.capitalize}.join('')
     end
-    
+
     def get_from_enclosing_module(klazz_name)
       config_klazz_path=self.class.name.to_s.split('::')[0..-2]
       config_klazz_path<< klazz_name
       config_klazz_path.inject(Object){|parent,nxt|
-         break unless parent.const_defined?(nxt.to_sym) 
-         parent.const_get(nxt.to_sym)
+        break unless parent.const_defined?(nxt.to_sym)
+        parent.const_get(nxt.to_sym)
       }
     end
 
@@ -75,5 +113,7 @@ module KungFigure
       @props[key].instance_eval(&block) if block_given?
       return @props[key]
     end
+    #end KungFigure::Base
   end
+  #end KungFigure module
 end

@@ -83,6 +83,12 @@ Or inside instances of WorkHorse as config method.
 
 == CHANGE LOG
 
+* 0.0.2 add MyModule.clear_config! (clear configs for all nested configs) and MyModule.clear_config (clear concrete configs) and KungFigure.clear_all_configs methods
+
+==  TODO
+
+* Give the posibility clear one branch of configs
+
 == MORE
 
 For more info see tests and source code :)  
