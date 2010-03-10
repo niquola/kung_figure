@@ -89,12 +89,13 @@ Or inside instances of WorkHorse as config method.
 ==  TODO
 
 * add another configuration style
-  Mod.confugure do |m|
-     m.param 'value'
-     m.nested_config |nc|
-       nc.param1 'value2'
-     end
-  end
+
+    Mod.confugure do |m|
+       m.param 'value'
+       m.nested_config |nc|
+         nc.param1 'value2'
+       end
+    end
 
 == MORE
 
