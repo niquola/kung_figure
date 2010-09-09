@@ -76,7 +76,7 @@ module KungFigure
           if args.length > 0
             @props[name] = args[0]
           else
-            @props[name] || default
+            @props.key?(name) ? @props[name] : default
           end
         end
       end

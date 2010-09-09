@@ -5,6 +5,7 @@ module MyModule
   class Config < KungFigure::Base
     define_prop :prop1,'default1'
     define_prop :prop2, 2
+    define_prop :bool,true
 
     class NestedConfig < KungFigure::Base
       define_prop :prop3,'prop3'
@@ -50,6 +51,13 @@ class TestKungFigure < Test::Unit::TestCase
     end
 
     assert_equal('value3',MyModule.config.nested_config.prop3)
+  end
+
+  def test_bug_with_boolean
+    MyModule.configure do
+      bool false
+    end
+    assert_equal(false,MyModule.config.bool)
   end
 
   def test_nested_config_declaration
